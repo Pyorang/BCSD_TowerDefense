@@ -5,7 +5,7 @@ using UnityEngine;
 public class TowerSpawner : MonoBehaviour
 {
     [SerializeField]
-    private TowerTemplate towerTemplate;        //타워 정보 (공격력, 공격속도 등)
+    private TowerTemplate[] towerTemplate;        //타워 정보 (공격력, 공격속도 등)
     //[SerializeField]
     //private GameObject towerPrefab;
     //[SerializeField]
@@ -18,9 +18,12 @@ public class TowerSpawner : MonoBehaviour
     private SystemTextViewer systemTextViewer;  //돈 부족, 건설 불가와 같은 시스템 메시지 출력
     private bool isOnTowerButton = false;       //타워 건설 버튼을 눌렀는지 체크
     private GameObject followTowerClone = null; //임시 타워 사용 완료 시 삭제를 위해 저장하는 변수
+    private int towerType;                      //타워 속성
 
-    public void ReadyToSpawnTower()
+    public void ReadyToSpawnTower(int type)
     {
+        towerType = type;
+
         //버튼을 중복해서 누르는 것을 방지하기 위해 필요
         if(isOnTowerButton == true)
         {
@@ -29,7 +32,7 @@ public class TowerSpawner : MonoBehaviour
 
         //타워 건설 가능 여부 확인
         //타워를 건설할 만큼 돈이 없으면 타워 건설 X
-        if (towerTemplate.weapon[0].cost>playerGold.CurrentGold)
+        if (towerTemplate[towerType].weapon[0].cost>playerGold.CurrentGold)
         {
             //골드가 부족해서 타워 건설이 불가능하다고 출력
             systemTextViewer.PrintText(SystemType.Money);
@@ -39,7 +42,7 @@ public class TowerSpawner : MonoBehaviour
         //타워 건설 버튼을 눌렀다고 설정
         isOnTowerButton = true;
         //마우스를 따라다니는 임시 타워 생성
-        followTowerClone = Instantiate(towerTemplate.FollowTowerPrefab);
+        followTowerClone = Instantiate(towerTemplate[towerType].FollowTowerPrefab);
         //타워 건설을 취소할 수 있는 코루틴 함수 시작
         StartCoroutine("OnTowerCancelSystem");
     }
@@ -74,10 +77,10 @@ public class TowerSpawner : MonoBehaviour
         //타워가 건설되어 있으므로 설정
         tile.IsBuildTower = true;
         //타워 건설에 필요한 골드만큼 감소
-        playerGold.CurrentGold -= towerTemplate.weapon[0].cost;
+        playerGold.CurrentGold -= towerTemplate[towerType].weapon[0].cost;
         //선택한 타일의 위치에 타워 건설 (타일보다 z축 -1의 위치에 배치)
         Vector3 position = tileTransform.position + Vector3.back;
-        GameObject clone = Instantiate(towerTemplate.towerPrefab, position, Quaternion.identity);
+        GameObject clone = Instantiate(towerTemplate[towerType].towerPrefab, position, Quaternion.identity);
         //타워 무기에 enemySpawner 정보 전달
         clone.GetComponent<TowerWeapon>().Setup(enemySpawner, playerGold, tile) ;
 
