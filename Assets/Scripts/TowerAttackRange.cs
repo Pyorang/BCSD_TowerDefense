@@ -2,10 +2,6 @@ using UnityEngine;
 
 public class TowerAttackRange : MonoBehaviour
 {
-    private void Awake()
-    {
-        OffAttackRange();
-    }
 
     public void OnAttackRange(Vector3 position, float range)
     {
